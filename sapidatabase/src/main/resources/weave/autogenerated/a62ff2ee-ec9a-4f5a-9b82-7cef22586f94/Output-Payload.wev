@@ -1,0 +1,4 @@
+%dw 2.0
+
+type auto_a62ff2ee_ec9a_4f5a_9b82_7cef22586f94_Output_Payload = Array<{|  id: Number,   email: String,   firstName: String,   lastName: String,   manager_id?: Number,   street: String,   city: String,   dob: Date,   updated_at: Date,   initials: String|}>
+

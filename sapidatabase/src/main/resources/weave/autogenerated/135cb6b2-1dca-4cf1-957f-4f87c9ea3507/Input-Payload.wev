@@ -1,0 +1,18 @@
+%dw 2.0
+
+type auto_135cb6b2_1dca_4cf1_957f_4f87c9ea3507_Input_Payload = {
+  firstName: String, 
+  lastName: String, 
+  addrese: {
+    city: String, 
+    street: String, 
+    _?: Any
+  }, 
+  updated_at: String, 
+  manager_id: Number, 
+  dob: String, 
+  initials: String, 
+  email: String, 
+  _?: Any
+}
+

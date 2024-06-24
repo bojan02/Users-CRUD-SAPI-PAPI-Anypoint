@@ -1,0 +1,5 @@
+import * from dw::test::Asserts
+---
+payload must equalTo({
+	"message": "User Not Found"
+})

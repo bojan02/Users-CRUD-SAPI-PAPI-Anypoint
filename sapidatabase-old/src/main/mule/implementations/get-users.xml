@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
+	<flow name="get:\users:sapi-database-config">
+		<ee:transform doc:name="Transform Message" doc:id="bfb8c042-e693-419f-98d5-b37ea0bde640" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="reportsDynamicQuery" ><![CDATA[if(!isEmpty(attributes.queryParams.email)) (
+	"select * from users where upper(email) = '" ++ upper(attributes.queryParams.email) ++ "'"
+) else (
+	"select * from users"
+)]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<db:select doc:name="Select" doc:id="0f3df7c1-e5c2-496e-97a8-e2b0a3a89398" config-ref="Database_Config">
+			<db:sql ><![CDATA[#["$(vars.reportsDynamicQuery)"]]]></db:sql>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="cfd363a9-c2b9-4832-9a8b-06ae0d1ace61" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+if(sizeOf(payload) > 1){
+payload map (userData, indexOfuserData) -> {
+	email: userData.email,
+    firstName: userData.firstName,
+    lastName: userData.lastName,
+    manager_id: userData.manager_id,
+	dob: userData.dob as Date { format: "dd/MM/yyyy" },
+    addrese: {
+      street: userData.street,
+      city: userData.city,
+    },
+	updated_at: userData.updated_at as String {format: "yyyy-MM-dd HH:mm:ss"} default "",
+	initials: userData.initials
+}else{
+	email: payload.email,
+	firstName: payload.firstName,
+	lastName: payload.lastName,
+	manager_id: payload.manager_id,
+	street: payload.addrese.street,
+	city: payload.addrese.city,
+	dob: payload.dob as Date {format: "dd/MM/yyyy"} as Date {format: "yyyy-MM-dd"},
+	updated_at: payload.updated_at as String {format: "yyyy-MM-dd HH:mm:ss"} default "",,
+	initials: payload.initials
+	}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+
+    </flow>
+	<flow name="get-usersFlow" doc:id="167a0752-013e-4ea8-85d8-8fc58153886a" >
+		<ee:transform doc:name="Transform Message">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+[
+  {
+    id: 1,
+    email: "kruno@net.hr",
+    firstName: "kruno",
+    lastName: "kra",
+    manager_id: 1,
+    addrese: {
+      street: "Vukovarska 120",
+      city: "Vinkovci"
+    },
+    dob: "08/08/1988",
+    updated_at: "2021-11-26 12:27:16",
+    initials: "KK"
+  }
+] as Array {encoding: "UTF-8", mediaType: "application/json"}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="b7795896-af96-47d0-ac84-8772b9bf48e2" />
+	</flow>
+	
+</mule>

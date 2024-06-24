@@ -1,0 +1,98 @@
+#%RAML 1.0
+title: sapi-database
+
+uses:
+  users-sapi-data-types: users-sapi-datatypes-library/users-sapi-datatypes-library.raml
+  
+traits:
+  client-id-required:
+    queryParameters:
+      client_id:
+        type: string
+      client_secret:
+        type: string
+
+  email-query-param: !include examples/email-query-param.raml
+
+/users:
+  get:
+    is: [client-id-required, email-query-param]
+    responses:
+      200:
+        body:
+          application/json:
+            type: users-sapi-data-types.get-users-response-type
+            example: !include /examples/get-users-response.json
+      404:
+          body:
+            application/json:
+              type: object
+              example: {Message: "User Not Found"}
+        
+  post:
+    is: [client-id-required]
+    body:
+      application/json:
+          type: users-sapi-data-types.post-users-request-type
+          example: !include /examples/post-put-users-request.json
+    responses:
+      200:
+        body:
+          application/json:
+            type: object
+            example: {Message: "User Successfully Created"}
+      409:
+        body:
+          application/json:
+            type: object
+            example: {Message: "User Already Exist"}
+            
+  /{ID}:      
+    get:
+      is: [client-id-required]
+      responses:
+        200:
+          body:
+            application/json:
+              type: users-sapi-data-types.get-user-response-type
+              example: !include /examples/get-user-response.json
+        404:
+          body:
+            application/json:
+              type: object
+              example: {Message: "User Not Found"}
+
+    put:
+      is: [client-id-required]
+      body:
+        application/json:
+            type: users-sapi-data-types.post-users-request-type
+            example: !include /examples/post-put-users-request.json
+      responses:
+        200:
+          body:
+            application/json:
+              type: object
+              example: {Message: "User Successfully Updated"}
+        404:
+          body:
+            application/json:
+              type: object
+              example: {Message: "User Not Found"}
+
+    delete:
+      is: [client-id-required]
+      responses:
+        204:
+          body:
+            application/json:
+              type: object
+              example: {}
+        404:
+          body:
+            application/json:
+              type: object
+              example: {}
+
+          
+    

@@ -1,0 +1,119 @@
+#%RAML 1.0 Library
+usage: Types for users sapi
+types:
+  get-users-response-type:
+    type: array
+    items:
+      type: object
+      properties:
+        id:
+          type: number
+          example: 1
+        email:
+          type: string
+          example: "kruno@net.hr"
+        firstName:
+          type: string
+          example: "kruno"
+        lastName:
+          type: string
+          example: "kra"
+        manager_id:
+          type: number
+          example: 1
+        addrese:
+          type: object
+          properties:
+            street:
+              type: string
+              example: "Vukovarska 120"
+            city:
+              type: string
+              example: "Vinkovci"
+        dob:
+          type: string
+          example: "08/08/1988"
+        updated_at:
+          type: string
+          example: "2021-11-26 12:27:16"
+        initials:
+          type: string
+          example: "KK"
+          minLength: 2
+          maxLength: 2
+  
+  get-user-response-type:
+    type: object
+    properties:
+        id:
+          type: number
+          example: 1
+        email:
+          type: string
+          example: "kruno@net.hr"
+        firstName:
+          type: string
+          example: "kruno"
+        lastName:
+          type: string
+          example: "kra"
+        manager_id:
+          type: number
+          example: 1
+        addrese:
+          type: object
+          properties:
+            street:
+              type: string
+              example: "Vukovarska 120"
+            city:
+              type: string
+              example: "Vinkovci"
+        dob:
+          type: string
+          example: "08/08/1988"
+        updated_at:
+          type: string
+          example: "2021-11-26 12:27:16"
+        initials:
+          type: string
+          example: "KK"
+          minLength: 2
+          maxLength: 2
+  
+  post-users-request-type:
+      type: object
+      properties:
+        email:
+          type: string
+          example: "kruno@net.hr"
+        firstName:
+          type: string
+          example: "kruno"
+        lastName:
+          type: string
+          example: "kra"
+        manager_id:
+          type: number
+          example: 1
+        addrese:
+          type: object
+          properties:
+            street:
+              type: string
+              example: "Vukovarska 120"
+            city:
+              type: string
+              example: "Vinkovci"
+        dob:
+          type: string
+          example: "08/08/1988"
+        updated_at:
+          type: string
+          example: "2021-11-26 12:27:16"
+        initials:
+          type: string
+          example: "KK"
+          minLength: 2
+          maxLength: 2
+

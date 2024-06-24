@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
+	<munit:config name="users-test-suite.xml" />
+	<munit:test name="post-user-flowTest" doc:id="46626846-c22b-4b13-ac22-ad679c33b651" description="Test" ignore="true">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Get Manager Request" doc:id="df3db2bb-6298-4897-8100-5bfa6a8307b2" processor="http:request" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="cffdcde1-257e-4bdd-b41a-0c40a9af33a0" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[%dw 2.0&#10;import getUser from targetModel::userResponse&#10;output application/java&#10;---&#10;getUser(1)]" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Get User Not Found" doc:id="ab44c16b-8f18-49b4-b0c0-a7c40a548c10" processor="http:request" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="d14e7d93-6637-4580-9967-9f62a081b9a5" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="d14e7d93-6637-4580-9967-9f62a081b9a5" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="HTTP:NOT_FOUND" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Get Response from POST" doc:id="bc88a12b-2788-41ee-b1f6-7123bbe7ef39" processor="http:request" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="89971e17-6820-41d2-82da-f9c1d8f736cf" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value='#[%dw 2.0&#10;output application/java&#10;---&#10;""]' />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<munit:set-event doc:name="Set User" doc:id="f5bbe451-8b35-4691-9e43-947e76c52352" >
+				<munit:payload value="#[%dw 2.0&#10;import getUser from cmd::userRequest&#10;output application/java&#10;---&#10;getUser()]" />
+			</munit:set-event>
+			<flow-ref doc:name="Flow-ref to post-user-flow" doc:id="51854f33-8947-482a-9965-edf376077d3a" name="post-put-user-flow" />
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-equals doc:name="Get Empty Response" doc:id="6b50cf9f-e475-4e6b-b794-353a4cdcbafb" actual="#[payload]" expected='#[%dw 2.0&#10;output application/java&#10;---&#10;""]' />
+		</munit:validation>
+	</munit:test>
+	<munit:test name="put-user-flowTest" doc:id="0725525b-3be8-4c1f-a6d6-5da168312220" description="Test">
+		<munit:behavior>
+			<munit-tools:mock-when doc:name="Get Manager Request" doc:id="51a67949-a34c-4f1e-9ac3-bdba794512a7" processor="http:request">
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute whereValue="cffdcde1-257e-4bdd-b41a-0c40a9af33a0" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return>
+					<munit-tools:payload value="#[%dw 2.0&#10;import getUser from targetModel::userResponse&#10;output application/java&#10;---&#10;getUser(1)]" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Get User by Email" doc:id="726bfdec-f4ad-46a6-bad1-eb01475ffd44" processor="http:request">
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute whereValue="d14e7d93-6637-4580-9967-9f62a081b9a5" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[%dw 2.0&#10;import getUser2 from targetModel::userResponse&#10;output application/java&#10;---&#10;getUser2()]" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Get Response from PUT" doc:id="9d42bdd9-06c0-480e-879e-092b0de331e0" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="39df30ac-557d-4809-8e45-87cd586d1900" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value='#[%dw 2.0&#10;output application/java&#10;---&#10;""]' />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution>
+			<munit:set-event doc:name="Set User" doc:id="6a547f05-0a5e-4477-834d-1d5f46e16440">
+				<munit:payload value="#[%dw 2.0&#10;import getUser from cmd::userRequest&#10;output application/java&#10;---&#10;getUser()]" />
+			</munit:set-event>
+			<flow-ref doc:name="Flow-ref to post-user-flow" doc:id="e5aa58b7-a7cc-4ba4-9ed1-9df171c42475" name="post-put-user-flow" />
+		</munit:execution>
+		<munit:validation>
+			<munit-tools:assert-equals doc:name="Get Empty Response" doc:id="2ba52bb7-fdcf-4408-915e-a96a00dd9de4" actual="#[payload]" expected='#[%dw 2.0&#10;output application/java&#10;---&#10;""]' />
+		</munit:validation>
+	</munit:test>
+
+
+</mule>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<launchConfiguration type="org.mule.tooling.runtime.muleServerLaunchType">
+    <stringAttribute key="clear_data" value="ALWAYS"/>
+    <booleanAttribute key="consoleEnabled" value="true"/>
+    <stringAttribute key="launch_mule_server_version" value="org.mule.tooling.server.4.6.ee"/>
+    <stringAttribute key="maven.command.line" value=""/>
+    <booleanAttribute key="maven.snapshot.updates" value="false"/>
+    <stringAttribute key="mule-agent-port" value="55401"/>
+    <stringAttribute key="mule-agent-token-auth" value="6b120522-eb29-4917-aa20-f6fc1f77b53d"/>
+    <listAttribute key="mule-project-names">
+        <listEntry value="sapidatabase"/>
+        <listEntry value="papi-users"/>
+    </listAttribute>
+    <intAttribute key="mule.debug.payload.max.collection.size" value="100"/>
+    <booleanAttribute key="org.eclipse.debug.core.ATTR_FORCE_SYSTEM_CONSOLE_ENCODING" value="false"/>
+    <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
+        <listEntry value="/papi-users"/>
+    </listAttribute>
+    <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
+        <listEntry value="4"/>
+    </listAttribute>
+    <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="papi-users"/>
+    <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-M-XX:-UseBiasedLocking -M-Dfile.encoding=UTF-8 -M-XX:+UseG1GC -M-XX:+UseStringDeduplication -M-Dmule.deployment.forceParseConfigXmls=true"/>
+    <intAttribute key="remote-debug-max-stream-size" value="2"/>
+    <intAttribute key="remote-debug-port" value="6666"/>
+    <booleanAttribute key="remote-debug-suspend" value="false"/>
+</launchConfiguration>

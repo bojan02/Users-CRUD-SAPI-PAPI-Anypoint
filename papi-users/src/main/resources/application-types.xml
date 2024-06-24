@@ -1,0 +1,60 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<types:mule xmlns:types="http://www.mulesoft.org/schema/mule/types">
+  <types:catalog>
+    <types:type name="example" format="json">
+      <types:shape format="weave" example="examples/example-schema.json"><![CDATA[%dw 2.0
+
+type example = {| some: String |} {"example": "{\\\"some\\\":\\\"value\\\"}"}
+
+]]></types:shape>
+    </types:type>
+    <types:type name="post-sapi-request-payload" format="json">
+      <types:shape format="weave" example="examples/post-sapi-request.json"><![CDATA[%dw 2.0
+
+type post_sapi_request_payload = {|
+  email: String, 
+  firstName: String, 
+  lastName: String, 
+  manager_id: Number {"typeId": "int"}, 
+  addrese: {|
+    street: String, 
+    city: String
+  |}, 
+  dob: String, 
+  updated_at: String, 
+  initials: String
+|} {"example": "{\\\"email\\\":\\\"kruno@net.hr\\\",\\\"firstName\\\":\\\"kruno\\\",\\\"lastName\\\":\\\"kra\\\",\\\"manager_id\\\":1,\\\"addrese\\\":{\\\"street\\\":\\\"Vukovarska 120\\\",\\\"city\\\":\\\"Vinkovci\\\"},\\\"dob\\\":\\\"08\\/08\\/1988\\\",\\\"updated_at\\\":\\\"2021-11-26 12:27:16\\\",\\\"initials\\\":\\\"KK\\\"}"}
+
+]]></types:shape>
+    </types:type>
+    <types:type name="post-papi-request-payload" format="json">
+      <types:shape format="weave" example="examples/post-papi-request.json"><![CDATA[%dw 2.0
+
+type post_papi_request_payload = {|
+  emailAdresse: String, 
+  vorname: String, 
+  nachname: String, 
+  "manager-EmailAdresse": String, 
+  "straße": String, 
+  Geburtsort: String, 
+  Geburtstag: String
+|} {"example": "{\\\"emailAdresse\\\":\\\"kruno@net.hr\\\",\\\"vorname\\\":\\\"kruno\\\",\\\"nachname\\\":\\\"kra\\\",\\\"manager-EmailAdresse\\\":\\\"mario@net.hr\\\",\\\"stra\u00DFe\\\":\\\"Vukovarska 120\\\",\\\"Geburtsort\\\":\\\"Vinkovci\\\",\\\"Geburtstag\\\":\\\"586994400\\\"}"}
+
+]]></types:shape>
+    </types:type>
+  </types:catalog>
+  <types:enrichment select="#bc7a6585-f9cb-4545-80ce-868af07dd803">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="post-papi-request-payload"/>
+        </types:message>
+      </types:input-event>
+      <types:output-event>
+        <types:message>
+          <types:payload type="post-sapi-request-payload"/>
+        </types:message>
+      </types:output-event>
+    </types:processor-declaration>
+  </types:enrichment>
+</types:mule>

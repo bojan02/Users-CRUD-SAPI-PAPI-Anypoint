@@ -1,0 +1,23 @@
+%dw 2.0
+
+fun getQueryParam(email: String) = {
+	"queryParams": {
+		"email": email
+	}
+}
+
+fun getUser() = {
+	"email": "mario@net.hr",
+	"firstName": "mario",
+	"lastName": "maric",
+	"manager_id": 1,
+	"street": "Vukovarska 120",
+	"city": "Vinkovci",
+	"dob": "08/08/1988" as Date,
+	"updated_at":"2021-11-26 12:27:16" as DateTime,
+	"initials": "KK"
+}
+
+fun getUser(id: Number) = {
+    "id": id
+} ++ getUser()

@@ -1,0 +1,4 @@
+%dw 2.0
+
+type auto_be43b9cb_c04d_4506_87f1_517a32a0011e_Output_Variables_uriParam = Any
+

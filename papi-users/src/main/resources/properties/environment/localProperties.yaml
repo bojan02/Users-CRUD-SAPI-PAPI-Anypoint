@@ -1,0 +1,14 @@
+api:
+  id: '0000'
+
+environment:
+  logging:
+    level: 'DEBUG'
+
+https:
+  port: '8082'
+  
+httpsreq:
+  path: '/api'
+  host: 'localhost'
+  port: '8081'

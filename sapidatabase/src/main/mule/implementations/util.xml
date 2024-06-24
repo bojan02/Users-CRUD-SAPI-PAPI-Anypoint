@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
+	<sub-flow name="get-db-connector-subflow" doc:id="a62ff2ee-ec9a-4f5a-9b82-7cef22586f94" >
+		<db:select doc:name="Select with query parameter" doc:id="cc2d8b50-c4ff-43c4-b9d8-15dd1899c588" config-ref="Database_Config">
+			<db:sql><![CDATA[#[vars.selectDynamicQuery]]]></db:sql>
+		</db:select>
+	</sub-flow>
+	<sub-flow name="get-user-by-email-subflow" doc:id="1b6649fe-b678-4345-8531-d4fdfdbe86d3" >
+		<set-variable value='#["select * from users where email = \"" ++ vars.email ++ "\""]' doc:name="Set vars.selectDynamicQuery" doc:id="15b5742f-dab0-4157-bd36-cfe2e9dfe33e" variableName="selectDynamicQuery" />
+		<flow-ref doc:name="get-db-connector-subflow" doc:id="73bba675-afbc-4bc3-b32f-c095c9cd8a30" name="get-db-connector-subflow" />
+		<choice doc:name="Choice" doc:id="3a68e294-7d10-461a-a410-8eb598f2896d">
+					<when expression="#[!isEmpty(payload)]">
+						<ee:transform doc:name="GET user with query param mapping" doc:id="e06359ce-cb17-45e8-9571-2baea38166a1">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	id: payload.id[0],
+	email: payload.email[0],
+	firstName: payload.firstName[0],
+	lastName: payload.lastName[0],
+	manager_id: payload.manager_id[0],
+	addrese: {
+		street: payload.street[0],
+		city: payload.city[0],
+	},
+	dob: payload.dob[0] as Date {format: "dd/MM/yyyy"} default "",
+	updated_at: payload.updated_at[0] as DateTime {format: "yyyy-MM-dd HH:mm:ss"} default "",
+	initials: payload.initials[0]
+}
+]]></ee:set-payload>
+					</ee:message>
+							<ee:variables>
+							</ee:variables>
+				</ee:transform>
+					</when>
+					<otherwise>
+						<ee:transform doc:name="GET user by ID Not Found mapping" doc:id="283de688-e64e-4687-94df-7c8258df0112">
+							<ee:message>
+								<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"message": "User Not Found"
+}]]></ee:set-payload>
+							</ee:message>
+							<ee:variables>
+								<ee:set-variable variableName="httpStatus"><![CDATA[404]]></ee:set-variable>
+							</ee:variables>
+						</ee:transform>
+					</otherwise>
+				</choice>
+	</sub-flow>
+</mule>

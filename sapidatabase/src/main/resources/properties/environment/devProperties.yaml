@@ -1,0 +1,15 @@
+api:
+  id: '0000'
+
+environment:
+  logging:
+    level: 'DEBUG'
+
+https:
+  port: '8081'
+ 
+mysql:
+  host: '10.189.0.172'
+  port: '3306'
+  user: 'bojan'
+  database: 'users_list'

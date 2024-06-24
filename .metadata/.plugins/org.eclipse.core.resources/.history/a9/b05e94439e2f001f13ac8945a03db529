@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
+	<munit:config name="users-test-suite.xml" />
+	<munit:test name="users-test-suite-post-user-flowTest" doc:id="0725525b-3be8-4c1f-a6d6-5da168312220" description="Test">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="51a67949-a34c-4f1e-9ac3-bdba794512a7" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="cffdcde1-257e-4bdd-b41a-0c40a9af33a0" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[%dw 2.0&#10;import getUser from targetModel::userResponse&#10;output application/java&#10;---&#10;getUser(1)]" />
+					<munit-tools:attributes value='#[%dw 2.0&#10;import getQueryParam from cmd::userRequest&#10;output application/java&#10;---&#10;getQueryParam("mario@net.hr")]' />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock when" doc:id="726bfdec-f4ad-46a6-bad1-eb01475ffd44" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="d14e7d93-6637-4580-9967-9f62a081b9a5" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="HTTP:NOT_FOUND" />
+					<munit-tools:attributes value='#[%dw 2.0&#10;import getQueryParam from cmd::userRequest&#10;output application/java&#10;---&#10;getQueryParam("kruno@net.hr")]' />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock when" doc:id="9d42bdd9-06c0-480e-879e-092b0de331e0" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="89971e17-6820-41d2-82da-f9c1d8f736cf" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value='#[%dw 2.0&#10;import getMessage from targetModel::userResponse&#10;output application/java&#10;---&#10;getMessage("User Not Found")]' />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to post-user-flow" doc:id="e5aa58b7-a7cc-4ba4-9ed1-9df171c42475" name="post-user-flow"/>
+		</munit:execution>
+	</munit:test>
+
+
+</mule>

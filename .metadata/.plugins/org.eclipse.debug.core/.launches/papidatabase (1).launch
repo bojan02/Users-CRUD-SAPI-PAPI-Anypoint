@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<launchConfiguration type="org.eclipse.jdt.munit.launchconfig">
+    <stringAttribute key="launch_mule_server_version" value="org.mule.tooling.server.4.6.ee"/>
+    <listAttribute key="mule-project-names">
+        <listEntry value="papi-users"/>
+    </listAttribute>
+    <booleanAttribute key="munit_run" value="true"/>
+    <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
+        <listEntry value="/papi-users"/>
+    </listAttribute>
+    <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
+        <listEntry value="4"/>
+    </listAttribute>
+    <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="papi-users"/>
+    <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Djava.library.path=&#13;&#10;-Dlog4j.skipJansi=true"/>
+    <booleanAttribute key="run_coverage" value="true"/>
+    <setAttribute key="test_names"/>
+    <setAttribute key="test_resources">
+        <setEntry value="users-test-suite.xml"/>
+    </setAttribute>
+</launchConfiguration>

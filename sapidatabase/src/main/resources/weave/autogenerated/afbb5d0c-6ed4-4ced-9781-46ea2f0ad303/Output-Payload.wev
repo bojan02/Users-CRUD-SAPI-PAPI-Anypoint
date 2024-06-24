@@ -1,0 +1,4 @@
+%dw 2.0
+
+type auto_afbb5d0c_6ed4_4ced_9781_46ea2f0ad303_Output_Payload = Array<{  firstName: String,   lastName: String,   addrese: {    city: String,     street: String,     _?: Any  },   updated_at: String,   manager_id: Number,   dob: String,   initials: String,   id: Number,   email: String,   _?: Any}>
+
