@@ -1,0 +1,12 @@
+CREATE TABLE users (
+    id INTEGER PRIMARY KEY AUTO_INCREMENT,
+    email VARCHAR(50) NOT NULL UNIQUE,
+    firstName VARCHAR(30) NOT NULL,
+    lastName VARCHAR(30) NOT NULL,
+    manager_id INTEGER,
+    street VARCHAR(30) NOT NULL,
+    city VARCHAR(20) NOT NULL,
+    dob DATE NOT NULL,
+    updated_at DATETIME NOT NULL,
+    initials VARCHAR(2) NOT NULL CHECK (length(initials) = 2)
+);

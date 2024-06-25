@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="   http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd   http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd   http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
+	<munit:config name="users-test-success.xml"/>
+	<munit:test description="Test" doc:id="1ba2e0c0-f4e4-48b4-b9a4-eb736dafe109" name="get-user-by-id-not-found-flowTest">
+		<munit:behavior>
+			<munit-tools:mock-when doc:id="b76bab2e-c8fd-489f-9282-093df930d4b9" doc:name="Get Empty Database Call" processor="db:select">
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute attributeName="doc:id" whereValue="cc2d8b50-c4ff-43c4-b9d8-15dd1899c588"/>
+				</munit-tools:with-attributes>
+				<munit-tools:then-return>
+					<munit-tools:payload mediaType="application/java" value="#[[]]"/>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution>
+			<munit:set-event doc:id="07fc8561-ded0-4d28-ac76-5470a97ad6c9" doc:name="Set ID URI Param">
+				<munit:attributes value="#[%dw 2.0&#10;import getUriParam from cmd::userRequest&#10;output application/java&#10;---&#10;getUriParam(1)]"/>
+			</munit:set-event>
+			<flow-ref doc:id="4c2ae93b-e68a-4343-9316-75a5749875f5" doc:name="get-user-by-id-flow" name="get-user-by-id-flow"/>
+		</munit:execution>
+		<munit:validation>
+			<munit-tools:verify-call doc:id="07cdce23-aa95-4665-aefb-11d4344689f9" doc:name="Verify call" processor="db:select" times="1">
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute attributeName="doc:id" whereValue="cc2d8b50-c4ff-43c4-b9d8-15dd1899c588"/>
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+			<munit-tools:assert-equals actual="#[payload]" doc:id="4719bd88-a0ed-4f8b-9d96-b1abee63d16c" doc:name="Get message User Not Found" expected="#[%dw 2.0&#10;import getMessage from targetModel::userResponse&#10;output application/java&#10;---&#10;getMessage(&quot;User Not Found&quot;)]"/>
+		</munit:validation>
+	</munit:test>
+	<munit:test description="Test" doc:id="47cd6753-7234-4805-83d8-8daad3c3d689" name="get-user-by-email-not-found-flowTest">
+		<munit:behavior>
+			<munit-tools:mock-when doc:id="b386703a-7c6c-4a66-b9c9-42fbbfae77c3" doc:name="Get Empty Database Call" processor="db:select">
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute attributeName="doc:id" whereValue="cc2d8b50-c4ff-43c4-b9d8-15dd1899c588"/>
+				</munit-tools:with-attributes>
+				<munit-tools:then-return>
+					<munit-tools:payload mediaType="application/java" value="#[[]]"/>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution>
+			<munit:set-event doc:id="c5475e2d-3291-4f2d-884e-9c3eb713829b" doc:name="Set Email Query Param">
+				<munit:attributes value="#[%dw 2.0&#10;import getQueryParam from cmd::userRequest&#10;output application/java&#10;---&#10;getQueryParam(&quot;kruno@net.hr&quot;)]"/>
+			</munit:set-event>
+			<flow-ref doc:id="32e1a625-fc9c-4497-b1fe-d4631e4f15da" doc:name="get-users-flow" name="get-users-flow"/>
+		</munit:execution>
+		<munit:validation>
+			<munit-tools:verify-call doc:id="ae5b30aa-f81a-4b6d-9a3c-c24da7b80677" doc:name="Verify call" processor="db:select" times="1">
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute attributeName="doc:id" whereValue="cc2d8b50-c4ff-43c4-b9d8-15dd1899c588"/>
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+			<munit-tools:assert-equals actual="#[payload]" doc:id="30e32069-8913-4e0b-8a18-455d432a366b" doc:name="Get message User Not Found" expected="#[%dw 2.0&#10;import getMessage from targetModel::userResponse&#10;output application/java&#10;---&#10;getMessage(&quot;User Not Found&quot;)]"/>
+		</munit:validation>
+	</munit:test>
+	<munit:test description="Test" doc:id="e29b00b0-70b5-46ea-8e73-a1a36feb1bb0" name="post-user-already-exist-flowTest">
+		<munit:behavior>
+			<munit-tools:mock-when doc:id="fb8d8a06-6ea0-4cca-ae5c-497a009684de" doc:name="Get User with Id Database Call" processor="db:select">
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute attributeName="doc:id" whereValue="cc2d8b50-c4ff-43c4-b9d8-15dd1899c588"/>
+				</munit-tools:with-attributes>
+				<munit-tools:then-return>
+					<munit-tools:payload mediaType="application/java" value="#[%dw 2.0&#10;import getUser from cmd::userRequest&#10;output application/java&#10;---&#10;[getUser(1)]]"/>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution>
+			<munit:set-event doc:id="c91631ff-56bd-4a94-9941-c8277693e20d" doc:name="Set post payload">
+				<munit:payload mediaType="application/java" value="#[%dw 2.0&#10;import getUser from targetModel::userResponse&#10;output application/java&#10;---&#10;getUser()]"/>
+			</munit:set-event>
+			<flow-ref doc:id="3c293628-2b91-48d8-968d-4be96aca6007" doc:name="post-user-flow" name="post-user-flow"/>
+		</munit:execution>
+		<munit:validation>
+			<munit-tools:verify-call doc:id="deb51943-3b60-4227-8200-2078af58bf47" doc:name="Verify call Select" processor="db:select" times="1">
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute attributeName="doc:id" whereValue="cc2d8b50-c4ff-43c4-b9d8-15dd1899c588"/>
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+			<munit-tools:assert-equals actual="#[payload]" doc:id="e65ea88c-db84-483b-a2f9-b526f33657ad" doc:name="Get message User Already Exist" expected="#[%dw 2.0&#10;import getMessage from targetModel::userResponse&#10;output application/java&#10;---&#10;getMessage(&quot;User Already Exist&quot;)]"/>
+		</munit:validation>
+	</munit:test>
+	<munit:test description="Test" doc:id="a3fbcc9a-4540-4676-bedf-262ecb05996f" name="put-user-not-found-flowTest">
+		<munit:behavior>
+			<munit-tools:mock-when doc:id="9c39bc2a-d4b1-4f6b-aa17-abf48db4aa06" doc:name="Get Empty Database Call" processor="db:select">
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute attributeName="doc:id" whereValue="cc2d8b50-c4ff-43c4-b9d8-15dd1899c588"/>
+				</munit-tools:with-attributes>
+				<munit-tools:then-return>
+					<munit-tools:payload mediaType="application/java" value="#[[]]"/>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution>
+			<munit:set-event doc:id="4704dd2a-3f30-4520-b9b9-75952c6c5c56" doc:name="Set ID URI Param And Payload Event">
+				<munit:payload value="#[%dw 2.0&#10;import getUser from targetModel::userResponse&#10;output application/java&#10;---&#10;getUser()]"/>
+				<munit:attributes value="#[%dw 2.0&#10;import getUriParam from cmd::userRequest&#10;output application/java&#10;---&#10;getUriParam(1)]"/>
+			</munit:set-event>
+			<flow-ref doc:id="de8bf46a-89fe-4b14-ae65-ba0cabf2dd37" doc:name="put-user-flow" name="put-user-flow"/>
+		</munit:execution>
+		<munit:validation>
+			<munit-tools:verify-call doc:id="c8fa534c-8c07-4bd8-82c0-a0d62b853eb5" doc:name="Verify call Select" processor="db:select" times="1">
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute attributeName="doc:id" whereValue="cc2d8b50-c4ff-43c4-b9d8-15dd1899c588"/>
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+			<munit-tools:assert-equals actual="#[payload]" doc:id="2e21e5a3-24d9-46af-aebd-7da4f99afc56" doc:name="Get message User Not Found" expected="#[%dw 2.0&#10;import getMessage from targetModel::userResponse&#10;output application/java&#10;---&#10;getMessage(&quot;User Not Found&quot;)]"/>
+		</munit:validation>
+	</munit:test>
+	<munit:test description="Test" doc:id="3945df7e-613c-453b-a9ee-7fc0168fc4d1" name="delete-user-not-exist-flowTest">
+		<munit:behavior>
+			<munit-tools:mock-when doc:id="cb647071-3e0e-4161-831a-a7f376a44ebe" doc:name="Get Empty Database Call" processor="db:select">
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute attributeName="doc:id" whereValue="cc2d8b50-c4ff-43c4-b9d8-15dd1899c588"/>
+				</munit-tools:with-attributes>
+				<munit-tools:then-return>
+					<munit-tools:payload mediaType="application/java" value="#[[]]"/>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution>
+			<munit:set-event doc:id="bbe85077-d38f-4472-9284-7c65215d7d71" doc:name="Set ID URI Param Event">
+				<munit:attributes value="#[%dw 2.0&#10;import getUriParam from cmd::userRequest&#10;output application/java&#10;---&#10;getUriParam(1)]"/>
+			</munit:set-event>
+			<flow-ref doc:id="116dc773-8084-4da9-bbc9-827b1bc278ab" doc:name="delete-user-flow" name="delete-user-flow"/>
+		</munit:execution>
+		<munit:validation>
+			<munit-tools:verify-call doc:id="def8d6d5-1723-4d3c-b90a-3f93d32408ab" doc:name="Verify call Select" processor="db:select" times="1">
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute attributeName="doc:id" whereValue="cc2d8b50-c4ff-43c4-b9d8-15dd1899c588"/>
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+			<munit-tools:assert-equals actual="#[payload]" doc:id="8489f317-e764-4ad0-92e7-0eedef8790e9" doc:name="Get Empty Response" expected="#[&quot;&quot;]"/>
+		</munit:validation>
+	</munit:test>
+
+
+</mule>

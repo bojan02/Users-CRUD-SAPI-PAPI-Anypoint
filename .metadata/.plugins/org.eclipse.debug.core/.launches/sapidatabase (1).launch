@@ -22,6 +22,6 @@
     <booleanAttribute key="run_coverage" value="true"/>
     <setAttribute key="test_names"/>
     <setAttribute key="test_resources">
-        <setEntry value="users-test-suite.xml"/>
+        <setEntry value="users-test-success.xml"/>
     </setAttribute>
 </launchConfiguration>

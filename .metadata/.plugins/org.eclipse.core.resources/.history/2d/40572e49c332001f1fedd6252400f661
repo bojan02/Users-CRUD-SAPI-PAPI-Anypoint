@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:secure-properties="http://www.mulesoft.org/schema/mule/secure-properties"
+	xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit"
+	xmlns:tls="http://www.mulesoft.org/schema/mule/tls"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:njams="http://www.mulesoft.org/schema/mule/njams"
+	xmlns:api-gateway="http://www.mulesoft.org/schema/mule/api-gateway"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd 
+http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd 
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd 
+http://www.mulesoft.org/schema/mule/api-gateway http://www.mulesoft.org/schema/mule/api-gateway/current/mule-api-gateway.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/njams http://www.mulesoft.org/schema/mule/njams/current/mule-njams.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/schema/mule/secure-properties/current/mule-secure-properties.xsd">
+	<http:listener-config name="sapi-database-httpListenerConfig" doc:name="sapi-database-httpListenerConfig">
+        <http:listener-connection host="0.0.0.0" port="${https.port}" protocol="HTTPS">
+			<tls:context >
+				<tls:trust-store insecure="true" />
+				<tls:key-store path="sapidatabase.jks" alias="mule" keyPassword="${secure::certificate.keypassword}" password="${secure::certificate.password}" type="jks"/>
+			</tls:context>
+		</http:listener-connection>
+    </http:listener-config>
+    <apikit:config name="sapi-database-config" api="resource::88dd1cb3-7444-4b78-a542-3bdf8586d11a:sapi-database:1.0.2:raml:zip:sapi-database.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
+	<configuration-properties doc:name="API Properties" doc:id="12b9d91d-d82a-4a9e-89a8-7d9a2afa38d1" file="properties/apiProperties.yaml" />
+	<configuration-properties doc:name="Generated Maven Properties" doc:id="12b9d91d-d82a-4a9e-89a8-7d9a2afa38d1" file="properties/generatedProperties.yaml" />
+	<configuration-properties doc:name="Environment properties" doc:id="2a5a8ef5-06ca-40dc-a2c9-7daadd7d0b45" file="properties/environment/${mule.env}Properties.yaml" />
+	<global-property doc:name="Global Property" doc:id="a049c954-10eb-4fd4-bf9e-eb7e59c21e54" name="mule.env" value="dev" />
+	<configuration doc:name="Global Error Handler Configuration" doc:id="debb8bec-9ca7-452e-afb3-badc3f2df3ab" defaultErrorHandler-ref="globalErrorHandler" />
+	<configuration-properties doc:name="Log properties" doc:id="49af3598-2447-4b30-9b55-b9b934b5abef" file="properties/logProperties.yaml" />
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="48dc4ca8-d032-4fde-9415-2d320ee71105" >
+		<db:my-sql-connection host="${mysql.host}" port="${mysql.port}" user="${mysql.user}" database="${mysql.database}" password="${secure::database.password}"/>
+	</db:config>
+	<secure-properties:config name="Secure_Properties_Config" doc:name="Secure Properties Config" doc:id="0113cd9b-17b3-4562-a46c-8dc29a4d8d12" file="properties/environment/${mule.env}SecureProperties.yaml" key="mulesoftmulesoft" />
+
+</mule>

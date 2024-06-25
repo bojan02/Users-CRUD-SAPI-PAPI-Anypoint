@@ -5,8 +5,8 @@
     <stringAttribute key="launch_mule_server_version" value="org.mule.tooling.server.4.6.ee"/>
     <stringAttribute key="maven.command.line" value=""/>
     <booleanAttribute key="maven.snapshot.updates" value="false"/>
-    <stringAttribute key="mule-agent-port" value="55401"/>
-    <stringAttribute key="mule-agent-token-auth" value="6b120522-eb29-4917-aa20-f6fc1f77b53d"/>
+    <stringAttribute key="mule-agent-port" value="60933"/>
+    <stringAttribute key="mule-agent-token-auth" value="eaf8584d-8637-4392-9a52-e746d8f59f42"/>
     <listAttribute key="mule-project-names">
         <listEntry value="sapidatabase"/>
         <listEntry value="papi-users"/>

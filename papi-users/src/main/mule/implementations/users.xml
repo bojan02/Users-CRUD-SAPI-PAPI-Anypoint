@@ -10,9 +10,8 @@ http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/fil
 http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd
 http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd">
 	<flow name="post-put-user-flow" doc:id="727b805e-ff0c-403e-9cb5-5be4d225eaf0" >
-		<set-variable value='#[payload]' doc:name="Set vars.user" doc:id="32615049-b02c-4986-ac05-12e18c8e41bc" variableName="user"/>
 		<try doc:name="Try" doc:id="a822dd5f-c9a0-4abe-93c8-eb8b8e9e666a" >
-			<http:request method="GET" doc:name="GET manager_id by email request" doc:id="cffdcde1-257e-4bdd-b41a-0c40a9af33a0" config-ref="HTTP_Request_configuration" path="/users" sendBodyMode="ALWAYS">
+			<http:request method="GET" doc:name="GET manager_id by email request" doc:id="cffdcde1-257e-4bdd-b41a-0c40a9af33a0" config-ref="HTTP_Request_configuration" path="/users" sendBodyMode="ALWAYS" target="manager">
 			<http:headers><![CDATA[#[output application/java
 ---
 {
@@ -22,7 +21,7 @@ http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sft
 			<http:query-params><![CDATA[#[output application/java
 ---
 {
-	"email" : vars.user."manager-EmailAdresse"
+	"email" : payload."manager-EmailAdresse"
 }]]]></http:query-params>
 		</http:request>
 			<error-handler >
@@ -31,10 +30,9 @@ http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sft
 				</on-error-propagate>
 			</error-handler>
 		</try>
-		<set-variable value="#[payload.id]" doc:name="Set vars.managerId" doc:id="d1fd7074-3fd4-4a2e-94ce-e8bff0d654bc" variableName="managerId" />
+		<set-variable value="#[vars.manager.id]" doc:name="Set vars.managerId" doc:id="d1fd7074-3fd4-4a2e-94ce-e8bff0d654bc" variableName="managerId" />
 		<try doc:name="Try" doc:id="8803a124-02a4-40b4-a5bc-3d4be0b10aac" >
-			<http:request method="GET" doc:name="GET user by email" doc:id="d14e7d93-6637-4580-9967-9f62a081b9a5" config-ref="HTTP_Request_configuration" path="/users" sendBodyMode="ALWAYS">
-			<http:body ><![CDATA[#[vars.user.emailAdresse]]]></http:body>
+			<http:request method="GET" doc:name="GET user by email" doc:id="d14e7d93-6637-4580-9967-9f62a081b9a5" config-ref="HTTP_Request_configuration" path="/users" sendBodyMode="ALWAYS" target="user">
 				<http:headers><![CDATA[#[output application/java
 ---
 {
@@ -44,7 +42,7 @@ http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sft
 			<http:query-params><![CDATA[#[output application/java
 ---
 {
-	"email" : vars.user.emailAdresse
+	"email" : payload.emailAdresse
 }]]]></http:query-params>
 		</http:request>
 			<error-handler >
@@ -61,17 +59,17 @@ http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sft
 output application/json
 ---
 {
-	email: vars.user.emailAdresse,
-	firstName: vars.user.vorname,
-	lastName: vars.user.nachname,
+	email: payload.emailAdresse,
+	firstName: payload.vorname,
+	lastName: payload.nachname,
 	manager_id: vars.managerId,
 	addrese: {
-		street: vars.user."straße",
-		city: vars.user.Geburtsort
+		street: payload."straße",
+		city: payload.Geburtsort
 	},
-	dob: vars.user.Geburtstag as Number as DateTime {format: "dd/MM/yyyy"},
+	dob: payload.Geburtstag as Number as DateTime {format: "dd/MM/yyyy"},
 	updated_at: now() as DateTime {format: 'yyyy-MM-dd HH:mm:ss'},
-	initials: upper(vars.user.vorname[0] ++ vars.user.nachname[0])
+	initials: upper(payload.vorname[0] ++ payload.nachname[0])
 }]]></ee:set-payload>
 			</ee:message>
 					<ee:variables>
@@ -104,21 +102,20 @@ output application/java
 output application/json
 ---
 {
-	email: vars.user.emailAdresse,
-	firstName: vars.user.vorname,
-	lastName: vars.user.nachname,
+	email: payload.emailAdresse,
+	firstName: payload.vorname,
+	lastName: payload.nachname,
 	manager_id: vars.managerId,
 	addrese: {
-		street: vars.user."straße",
-		city: vars.user.Geburtsort
+		street: payload."straße",
+		city: payload.Geburtsort
 	},
-	dob: vars.user.Geburtstag as Number as DateTime {format: "dd/MM/yyyy"},
+	dob: payload.Geburtstag as Number as DateTime {format: "dd/MM/yyyy"},
 	updated_at: now() as DateTime {format: 'yyyy-MM-dd HH:mm:ss'},
-	initials: upper(vars.user.vorname[0] ++ vars.user.nachname[0])
+	initials: upper(payload.vorname[0] ++ payload.nachname[0])
 }]]></ee:set-payload>
 							</ee:message>
 							<ee:variables>
-								<ee:set-variable variableName="userId"><![CDATA[payload.id]]></ee:set-variable>
 							</ee:variables>
 						</ee:transform>
 				<http:request method="PUT" doc:name="PUT user request" doc:id="39df30ac-557d-4809-8e45-87cd586d1900" config-ref="HTTP_Request_configuration" path="/users/{ID}" sendBodyMode="ALWAYS">
@@ -131,7 +128,7 @@ output application/json
 							<http:uri-params><![CDATA[#[output application/java
 ---
 {
-	"ID" : vars.userId
+	"ID" : vars.user.id
 }]]]></http:uri-params>
 						</http:request>
 				<ee:transform doc:name="PUT user mapping" doc:id="7349f274-b8fe-4bac-b5af-d62f8c2ed502">
@@ -180,10 +177,56 @@ payload filter ((user) -> user.updated_at > vars.watermark)]]></ee:set-payload>
 			<os:value ><![CDATA[#[now() as String {format: "yyyy-MM-dd HH:mm:ss"}]]]></os:value>
 		</os:store>
 		<logger level="INFO" doc:name="Log vars.watermark" doc:id="316c0eb3-e77c-48b5-89ed-2961078f78f5" message="#[vars.watermark]"/>
-		<ee:transform doc:name="User mapping to CSV" doc:id="728dcda3-049d-4d7e-a438-b7090ba5410e" >
-			<ee:message >
-				<ee:set-payload ><![CDATA[%dw 2.0
-output application/csv
+		<!-- [STUDIO:"Choice"]<choice doc:name="Choice" doc:id="77227f6d-d69e-4988-800f-00fc9ecaa302" >
+			<when expression='#[vars.watermark == "1970-01-01 00:00:00"&#93;'>
+				<ee:transform doc:name="User mapping to CSV with header" doc:id="821ffa59-9af2-487c-9ece-4d307dbb3ca5" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/csv header=true
+&#45;&#45;-
+payload map {
+    id : $.id,
+    email: $.email,
+    firstName: $.firstName,
+    lastName: $.lastName,
+    manager_id: $.manager_id,
+    dob: $.dob,
+    street : $.addrese.street,
+    city : $.addrese.city,
+    updated_at : $.updated_at,
+    initials : $.initials
+}
+&#93;&#93;></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</when>
+			<otherwise>
+				<ee:transform doc:name="User mapping to CSV without header" doc:id="2eb012dc-cd30-4a9a-85a5-d06d6453ad3b" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/csv header=false
+&#45;&#45;-
+payload map {
+    id : $.id,
+    email: $.email,
+    firstName: $.firstName,
+    lastName: $.lastName,
+    manager_id: $.manager_id,
+    dob: $.dob,
+    street : $.addrese.street,
+    city : $.addrese.city,
+    updated_at : $.updated_at,
+    initials : $.initials
+}
+&#93;&#93;></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</otherwise>
+		</choice> [STUDIO] -->
+		<ee:transform doc:name="User mapping to CSV without header" doc:id="728dcda3-049d-4d7e-a438-b7090ba5410e">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/csv header=false
 ---
 payload map {
     id : $.id,
@@ -200,6 +243,6 @@ payload map {
 ]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
-		<file:write doc:name="Write to CSV" doc:id="8a023cea-6d4e-4e9e-863d-2fd0d9f558e3" path="/mule/payload.csv" mode="APPEND" />
+		<file:write doc:name="Write to CSV" doc:id="8a023cea-6d4e-4e9e-863d-2fd0d9f558e3" path="C:\Users\bojan\Desktop\payload.csv" mode="APPEND" />
 	</flow>
 </mule>

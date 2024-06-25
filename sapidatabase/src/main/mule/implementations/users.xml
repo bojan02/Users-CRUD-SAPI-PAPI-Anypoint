@@ -90,26 +90,25 @@ payload map (userData, indexOfuserData) -> {
 	</flow>
 	<flow name="post-user-flow" doc:id="135cb6b2-1dca-4cf1-957f-4f87c9ea3507">
 		<logger level="INFO" doc:name="Start Log" doc:id="f76b2f8b-7bf9-418e-95cc-c9d921b0ca41" message='#["POST user started"]' />
-		<set-variable value="#[payload]" doc:name="Set vars.user" doc:id="2265cb7a-e069-49c9-b9fc-fed47ec78508" variableName="user"/>
 		<set-variable value="#[payload.email as String]" doc:name="Set vars.email" doc:id="cf705a43-d50c-44b9-8d0c-82765564b06c" variableName="email" />
-		<flow-ref doc:name="get-user-by-email-subflow" doc:id="96fa8b9d-fef7-4833-a658-c79e299fecd6" name="get-user-by-email-subflow" targetValue="#[payload //vars.userEmail]"/>
+		<flow-ref doc:name="get-user-by-email-subflow" doc:id="96fa8b9d-fef7-4833-a658-c79e299fecd6" name="get-user-by-email-subflow" target="user"/>
 		<choice doc:name="Choice" doc:id="985412dd-baa1-41bd-823d-3515f2562bd4" >
-			<when expression='#[isEmpty(payload.id)]'>
+			<when expression='#[isEmpty(vars.user.id)]'>
 				<ee:transform doc:name="User mapping" doc:id="c8d1fee4-815a-44f1-b017-0b55a0648555">
 					<ee:message>
 						<ee:set-payload><![CDATA[%dw 2.0
 output application/java
 ---
 {
-	email: vars.user.email,
-	firstName: vars.user.firstName,
-	lastName: vars.user.lastName,
-	manager_id: vars.user.manager_id,
-	street: vars.user.addrese.street,
-	city: vars.user.addrese.city,
-	dob: vars.user.dob as Date {format: "dd/MM/yyyy"},
-	updated_at: vars.user.updated_at,
-	initials: vars.user.initials
+	email: payload.email,
+	firstName: payload.firstName,
+	lastName: payload.lastName,
+	manager_id: payload.manager_id,
+	street: payload.addrese.street,
+	city: payload.addrese.city,
+	dob: payload.dob as Date {format: "dd/MM/yyyy"},
+	updated_at: payload.updated_at,
+	initials: payload.initials
 }]]></ee:set-payload>
 					</ee:message>
 				</ee:transform>
@@ -154,27 +153,26 @@ output application/json
 	</flow>
 	<flow name="put-user-flow" doc:id="9636c6f0-d67c-42bc-b431-47bc5621f403" >
 		<logger level="INFO" doc:name="Start Log" doc:id="a79bd9a2-a72a-46fe-a896-ecd64cbe616b" message='#["PUT user started"]' />
-		<set-variable value="#[payload]" doc:name="Set vars.user" doc:id="dec4657b-a2e3-41b3-b2fe-67ef93c594c1" variableName="user" />
 		<set-variable value="#[payload.email as String]" doc:name="Set vars.email" doc:id="834aac97-663a-4e23-8614-b9fd9893f43f" variableName="email" />
-		<flow-ref doc:name="get-user-by-id-flow" doc:id="c8ba418e-5b1b-4f6f-bce6-502bf9a2dcc7" name="get-user-by-id-flow" />
+		<flow-ref doc:name="get-user-by-id-flow" doc:id="c8ba418e-5b1b-4f6f-bce6-502bf9a2dcc7" name="get-user-by-id-flow" target="user"/>
 		<choice doc:name="Choice" doc:id="3f99c614-88b8-4529-83ee-049567dcfae2" >
-			<when expression='#[!isEmpty(payload.id)]'>
+			<when expression='#[!isEmpty(vars.user.id)]'>
 				<ee:transform doc:name="User mapping" doc:id="c4263017-2941-448f-aba6-f7325abedd85">
 					<ee:message>
 						<ee:set-payload><![CDATA[%dw 2.0
 output application/java
 ---
 {
-	id: vars.uriParam,
-	email: vars.user.email,
-	firstName: vars.user.firstName,
-	lastName: vars.user.lastName,
-	manager_id: vars.user.manager_id,
-	street: vars.user.addrese.street,
-	city: vars.user.addrese.city,
-	dob: vars.user.dob as Date {format: "dd/MM/yyyy"},
-	updated_at: vars.user.updated_at,
-	initials: vars.user.initials
+	id: vars.user.id,
+	email: payload.email,
+	firstName: payload.firstName,
+	lastName: payload.lastName,
+	manager_id: payload.manager_id,
+	street: payload.addrese.street,
+	city: payload.addrese.city,
+	dob: payload.dob as Date {format: "dd/MM/yyyy"},
+	updated_at: payload.updated_at,
+	initials: payload.initials
 }]]></ee:set-payload>
 					</ee:message>
 				</ee:transform>

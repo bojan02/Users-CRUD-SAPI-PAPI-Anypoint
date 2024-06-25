@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:sftp="http://www.mulesoft.org/schema/mule/sftp" xmlns:os="http://www.mulesoft.org/schema/mule/os"
+	xmlns:file="http://www.mulesoft.org/schema/mule/file"
+	xmlns:tls="http://www.mulesoft.org/schema/mule/tls" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd
+http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd">
+	<flow name="post-put-user-flow" doc:id="727b805e-ff0c-403e-9cb5-5be4d225eaf0" >
+		<try doc:name="Try" doc:id="a822dd5f-c9a0-4abe-93c8-eb8b8e9e666a" >
+			<http:request method="GET" doc:name="GET manager_id by email request" doc:id="cffdcde1-257e-4bdd-b41a-0c40a9af33a0" config-ref="HTTP_Request_configuration" path="/users" sendBodyMode="ALWAYS" target="manager">
+			<http:headers><![CDATA[#[output application/java
+---
+{
+	"client_secret" : "1",
+	"client_id" : "1"
+}]]]></http:headers>
+			<http:query-params><![CDATA[#[output application/java
+---
+{
+	"email" : payload."manager-EmailAdresse"
+}]]]></http:query-params>
+		</http:request>
+			<error-handler >
+				<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="57005c43-bcdc-4eb1-b3ba-1d32e6d6ba8c" >
+					<set-variable value='#["User Not Found"]' doc:name="Set vars.isManagerExists" doc:id="a617532c-2db8-4789-9ea3-466cb6bdf3ad" variableName="isManagerExists"/>
+				</on-error-propagate>
+			</error-handler>
+		</try>
+		<set-variable value="#[vars.manager.id]" doc:name="Set vars.managerId" doc:id="d1fd7074-3fd4-4a2e-94ce-e8bff0d654bc" variableName="managerId" />
+		<try doc:name="Try" doc:id="8803a124-02a4-40b4-a5bc-3d4be0b10aac" >
+			<http:request method="GET" doc:name="GET user by email" doc:id="d14e7d93-6637-4580-9967-9f62a081b9a5" config-ref="HTTP_Request_configuration" path="/users" sendBodyMode="ALWAYS" target="user">
+			<http:body ><![CDATA[#[vars.user.emailAdresse]]]></http:body>
+				<http:headers><![CDATA[#[output application/java
+---
+{
+	"client_secret" : "1",
+	"client_id" : "1"
+}]]]></http:headers>
+			<http:query-params><![CDATA[#[output application/java
+---
+{
+	"email" : vars.user.emailAdresse
+}]]]></http:query-params>
+		</http:request>
+			<error-handler >
+				<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="c2df4e13-f11e-422c-ae64-c81d71df2ea3" >
+					<set-variable value="#[false]" doc:name="Set vars.isUserExists" doc:id="0bbff55b-6f68-40d0-89fa-fa4750bb79d9" variableName="isUserExists" />
+				</on-error-continue>
+			</error-handler>
+		</try>
+		<choice doc:name="Choice" doc:id="f45c0ecf-3895-482d-bb5c-6a40b609cb66" >
+			<when expression="#[vars.isUserExists == false]">
+				<ee:transform doc:name="User mapping" doc:id="bc7a6585-f9cb-4545-80ce-868af07dd803">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	email: payload.emailAdresse,
+	firstName: payload.vorname,
+	lastName: payload.nachname,
+	manager_id: vars.managerId,
+	addrese: {
+		street: payload."straße",
+		city: payload.Geburtsort
+	},
+	dob: payload.Geburtstag as Number as DateTime {format: "dd/MM/yyyy"},
+	updated_at: now() as DateTime {format: 'yyyy-MM-dd HH:mm:ss'},
+	initials: upper(payload.vorname[0] ++ payload.nachname[0])
+}]]></ee:set-payload>
+			</ee:message>
+					<ee:variables>
+					</ee:variables>
+		</ee:transform>
+				<http:request method="POST" doc:name="POST user request" doc:id="89971e17-6820-41d2-82da-f9c1d8f736cf" config-ref="HTTP_Request_configuration" path="/users" sendBodyMode="ALWAYS">
+			<http:headers><![CDATA[#[output application/java
+---
+{
+	"client_secret" : "1",
+	"client_id" : "1"
+}]]]></http:headers>
+		</http:request>
+				<ee:transform doc:name="POST user mapping" doc:id="7f87722b-3868-46ac-a275-aec826bdf4ee">
+							<ee:message>
+								<ee:set-payload><![CDATA[%dw 2.0
+output application/java
+---
+""]]></ee:set-payload>
+							</ee:message>
+							<ee:variables>
+								<ee:set-variable variableName="httpStatus"><![CDATA[201]]></ee:set-variable>
+							</ee:variables>
+						</ee:transform>
+			</when>
+			<otherwise>
+				<ee:transform doc:name="User mapping" doc:id="4397353f-61ae-4def-bf05-a340e9ac7495">
+							<ee:message>
+								<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	email: payload.emailAdresse,
+	firstName: payload.vorname,
+	lastName: payload.nachname,
+	manager_id: vars.managerId,
+	addrese: {
+		street: payload."straße",
+		city: payload.Geburtsort
+	},
+	dob: payload.Geburtstag as Number as DateTime {format: "dd/MM/yyyy"},
+	updated_at: now() as DateTime {format: 'yyyy-MM-dd HH:mm:ss'},
+	initials: upper(payload.vorname[0] ++ payload.nachname[0])
+}]]></ee:set-payload>
+							</ee:message>
+							<ee:variables>
+							</ee:variables>
+						</ee:transform>
+				<http:request method="PUT" doc:name="PUT user request" doc:id="39df30ac-557d-4809-8e45-87cd586d1900" config-ref="HTTP_Request_configuration" path="/users/{ID}" sendBodyMode="ALWAYS">
+							<http:headers><![CDATA[#[output application/java
+---
+{
+	"client_secret" : "1",
+	"client_id" : "1"
+}]]]></http:headers>
+							<http:uri-params><![CDATA[#[output application/java
+---
+{
+	"ID" : vars.user.id
+}]]]></http:uri-params>
+						</http:request>
+				<ee:transform doc:name="PUT user mapping" doc:id="7349f274-b8fe-4bac-b5af-d62f8c2ed502">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/java
+---
+""]]></ee:set-payload>
+					</ee:message>
+					<ee:variables>
+						<ee:set-variable variableName="httpStatus"><![CDATA[201]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+			</otherwise>
+		</choice>
+	</flow>
+	<!-- [STUDIO:"watermarking-flow"]<flow name="watermarking-flow" doc:id="c031a1ef-d563-4c2f-ae07-ff2e1e3566e3">
+		<scheduler doc:name="Run every 5 minutes" doc:id="64a9e200-35d8-4aa6-9044-c4d31de99f8f" >
+			<scheduling-strategy >
+				<fixed-frequency frequency="5" startDelay="1" timeUnit="MINUTES"/>
+			</scheduling-strategy>
+		</scheduler>
+		<os:retrieve doc:name="Retrieve watermark" doc:id="e516c1ce-4db8-4b00-ba00-37feb0acef33" key="update_date" objectStore="Object_store" target="watermark">
+			<os:default-value ><![CDATA[#["1970-01-01 00:00:00" as String {format: "yyyy-MM-dd HH:mm:ss"}&#93;&#93;&#93;></os:default-value>
+		</os:retrieve>
+		<http:request method="GET" doc:name="GET all users" doc:id="778e6872-dae4-4261-bec9-f5ce6abaa484" config-ref="HTTP_Request_configuration" path="/users" sendBodyMode="ALWAYS">
+			<http:headers><![CDATA[#[output application/java
+&#45;&#45;-
+{
+	"client_secret" : "1",
+	"client_id" : "1"
+}&#93;&#93;&#93;></http:headers>
+			<http:response-validator>
+				<http:success-status-code-validator values="404, 200" />
+			</http:response-validator>
+		</http:request>
+		<ee:transform doc:name="Filtering dates" doc:id="1e1d4cef-ad43-466f-8eaa-6674728efd1b" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+&#45;&#45;-
+payload filter ((user) -> user.updated_at > vars.watermark)&#93;&#93;></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<os:store doc:name="Store watermark" doc:id="1c7de499-fb68-4296-94a9-a1e1ede8b868" objectStore="Object_store" key="update_date">
+			<os:value ><![CDATA[#[now() as String {format: "yyyy-MM-dd HH:mm:ss"}&#93;&#93;&#93;></os:value>
+		</os:store>
+		<logger level="INFO" doc:name="Log vars.watermark" doc:id="316c0eb3-e77c-48b5-89ed-2961078f78f5" message="#[vars.watermark&#93;"/>
+		<ee:transform doc:name="User mapping to CSV" doc:id="728dcda3-049d-4d7e-a438-b7090ba5410e" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/csv header=false
+&#45;&#45;-
+payload map {
+    id : $.id,
+    email: $.email,
+    firstName: $.firstName,
+    lastName: $.lastName,
+    manager_id: $.manager_id,
+    dob: $.dob,
+    street : $.addrese.street,
+    city : $.addrese.city,
+    updated_at : $.updated_at,
+    initials : $.initials
+}
+&#93;&#93;></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<file:write doc:name="Write to CSV" doc:id="8a023cea-6d4e-4e9e-863d-2fd0d9f558e3" path="C:\Users\bojan\Desktop\payload.csv" mode="APPEND" />
+	</flow> [STUDIO] -->
+</mule>

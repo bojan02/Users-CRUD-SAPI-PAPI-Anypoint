@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:validation="http://www.mulesoft.org/schema/mule/validation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd">
+	
+	<flow name="get-user-by-id-flow" doc:id="69b45a7f-8357-4b1f-8d69-5c38fb7946c7">
+		<set-variable value="#[attributes.uriParams.'ID']" doc:name="Set vars.uriParam" doc:id="885dd764-d23e-4abb-af7d-796134849c20" variableName="uriParam"/>
+		<set-variable value='#["select * from users where id = " ++ vars.uriParam]' doc:name="Set vars.selectDynamicQuery" doc:id="1c76fb54-2196-423e-8f19-e013184094ae" variableName="selectDynamicQuery"/>
+		<flow-ref doc:name="get-db-connector-subflow" doc:id="52ac9f56-3a59-4428-9e65-f1c5a6b1bae9" name="get-db-connector-subflow" />
+		<choice doc:name="Choice" doc:id="24f82db8-84d8-47de-89cd-740c57c03b42" >
+			<when expression="#[!isEmpty(payload)]">
+				<ee:transform doc:name="GET user by ID mapping" doc:id="cc10de60-d557-44f0-b455-755d7df1b963">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	id: payload.id[0],
+	email: payload.email[0],
+	firstName: payload.firstName[0],
+	lastName: payload.lastName[0],
+	manager_id: payload.manager_id[0],
+	addrese: {
+		street: payload.street[0],
+		city: payload.city[0],
+	},
+	dob: payload.dob[0] as Date {format: "dd/MM/yyyy"} default "",
+	updated_at: payload.updated_at[0] as DateTime {format: "yyyy-MM-dd HH:mm:ss"} default "",
+	initials: payload.initials[0]
+}
+]]></ee:set-payload>
+			</ee:message>
+					<ee:variables >
+					</ee:variables>
+		</ee:transform>
+			</when>
+			<otherwise >
+				<ee:transform doc:name="GET user by ID Not Found mapping" doc:id="f596240e-4d2f-4897-ac4d-53a64f35666b">
+						<ee:message>
+							<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"message": "User Not Found"
+}]]></ee:set-payload>
+						</ee:message>
+						<ee:variables>
+							<ee:set-variable variableName="httpStatus"><![CDATA[404]]></ee:set-variable>
+						</ee:variables>
+					</ee:transform>
+			</otherwise>
+		</choice>
+	</flow>
+	<flow name="get-users-flow" doc:id="afbb5d0c-6ed4-4ced-9781-46ea2f0ad303" >
+		<set-variable value='#[attributes.queryParams.email]' doc:name="Set vars.email" doc:id="01e8b164-b790-4579-a27a-7d4d63cdeaec" variableName="email"/>
+		<choice doc:name="isExist email query param" doc:id="c0f56b0b-da93-454d-916a-d5fd9220db0b" >
+			<when expression="#[!isEmpty(vars.email)]">
+				<flow-ref doc:name="get-user-by-email-subflow" doc:id="ed6ebee7-623a-42e5-a77d-f2a161e2bf05" name="get-user-by-email-subflow" />
+			</when>
+			<otherwise >
+				<set-variable value='#["select * from users"]' doc:name="Set vars.selectDynamicQuery" doc:id="a95be097-e879-438a-b9f8-c268697b7534" variableName="selectDynamicQuery" />
+				<flow-ref doc:name="get-db-connector-subflow" doc:id="e03b8c0d-e264-4cc1-909e-5325c12e2882" name="get-db-connector-subflow" />
+				<ee:transform doc:name="GET all users mapping" doc:id="433fade3-3b5d-45f0-b0f8-a4574e27fe71" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload map (userData, indexOfuserData) -> {
+	id: userData.id,
+	email: userData.email,
+    firstName: userData.firstName,
+    lastName: userData.lastName,
+    manager_id: userData.manager_id,
+    addrese: {
+      street: userData.street,
+      city: userData.city,
+    },
+    dob: userData.dob as Date { format: "dd/MM/yyyy" } default "",
+	updated_at: userData.updated_at as DateTime {format: "yyyy-MM-dd HH:mm:ss"} default "",
+	initials: userData.initials
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</otherwise>
+		</choice>
+	</flow>
+	<flow name="post-user-flow" doc:id="135cb6b2-1dca-4cf1-957f-4f87c9ea3507">
+		<logger level="INFO" doc:name="Start Log" doc:id="f76b2f8b-7bf9-418e-95cc-c9d921b0ca41" message='#["POST user started"]' />
+		<set-variable value="#[payload.email as String]" doc:name="Set vars.email" doc:id="cf705a43-d50c-44b9-8d0c-82765564b06c" variableName="email" />
+		<flow-ref doc:name="get-user-by-email-subflow" doc:id="96fa8b9d-fef7-4833-a658-c79e299fecd6" name="get-user-by-email-subflow" targetValue="#[payload.id]" target="emailUser"/>
+		<choice doc:name="Choice" doc:id="985412dd-baa1-41bd-823d-3515f2562bd4" >
+			<when expression='#[isEmpty(vars.email.id)]'>
+				<ee:transform doc:name="User mapping" doc:id="c8d1fee4-815a-44f1-b017-0b55a0648555">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/java
+---
+{
+	email: payload.email,
+	firstName: payload.firstName,
+	lastName: payload.lastName,
+	manager_id: payload.manager_id,
+	street: payload.addrese.street,
+	city: payload.addrese.city,
+	dob: payload.dob as Date {format: "dd/MM/yyyy"},
+	updated_at: payload.updated_at,
+	initials: payload.initials
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+				<db:insert doc:name="Insert User" doc:id="0416ed66-fea7-4da9-82b7-7d03b52a566c" config-ref="Database_Config">
+			<db:sql><![CDATA[INSERT INTO users (email, firstName, lastName, manager_id, street, city, dob, updated_at, initials) VALUES (:email, :firstName, :lastName, :manager_id, :street, :city, :dob, :updated_at, :initials)]]></db:sql>
+			<db:input-parameters><![CDATA[#[%dw 2.0
+output application/java
+---
+payload]]]></db:input-parameters>
+		</db:insert>
+				<ee:transform doc:name="POST user mapping" doc:id="0a1a92e7-cbdb-4a0d-ab16-5d5ac352e344">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  message: "User Successfully Created"
+} as Object {encoding: "UTF-8", mediaType: "application/json"}]]></ee:set-payload>
+			</ee:message>
+					<ee:variables >
+						<ee:set-variable variableName="httpStatus" ><![CDATA[200]]></ee:set-variable>
+					</ee:variables>
+		</ee:transform>
+			</when>
+			<otherwise >
+				<ee:transform doc:name="POST user already exist mapping" doc:id="75f0e7f0-eeb0-4251-956c-a4b9da285318">
+						<ee:message>
+							<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"message": "User Already Exist"
+}]]></ee:set-payload>
+						</ee:message>
+						<ee:variables>
+							<ee:set-variable variableName="httpStatus"><![CDATA[409]]></ee:set-variable>
+						</ee:variables>
+					</ee:transform>
+			</otherwise>
+		</choice>
+		<logger level="INFO" doc:name="End Log" doc:id="566625fe-d023-4314-a7d1-f93b2a0bc87b" message='#["POST user ended"]' />
+	</flow>
+	<flow name="put-user-flow" doc:id="9636c6f0-d67c-42bc-b431-47bc5621f403" >
+		<logger level="INFO" doc:name="Start Log" doc:id="a79bd9a2-a72a-46fe-a896-ecd64cbe616b" message='#["PUT user started"]' />
+		<set-variable value="#[payload]" doc:name="Set vars.user" doc:id="dec4657b-a2e3-41b3-b2fe-67ef93c594c1" variableName="user" />
+		<set-variable value="#[payload.email as String]" doc:name="Set vars.email" doc:id="834aac97-663a-4e23-8614-b9fd9893f43f" variableName="email" />
+		<flow-ref doc:name="get-user-by-id-flow" doc:id="c8ba418e-5b1b-4f6f-bce6-502bf9a2dcc7" name="get-user-by-id-flow" />
+		<choice doc:name="Choice" doc:id="3f99c614-88b8-4529-83ee-049567dcfae2" >
+			<when expression='#[!isEmpty(payload.id)]'>
+				<ee:transform doc:name="User mapping" doc:id="c4263017-2941-448f-aba6-f7325abedd85">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/java
+---
+{
+	id: vars.uriParam,
+	email: vars.user.email,
+	firstName: vars.user.firstName,
+	lastName: vars.user.lastName,
+	manager_id: vars.user.manager_id,
+	street: vars.user.addrese.street,
+	city: vars.user.addrese.city,
+	dob: vars.user.dob as Date {format: "dd/MM/yyyy"},
+	updated_at: vars.user.updated_at,
+	initials: vars.user.initials
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+				<db:update doc:name="Update User" doc:id="f81df8bd-f6ab-4382-b67d-d4f46652befd" config-ref="Database_Config">
+			<db:sql><![CDATA[update users set email=:email, firstName=:firstName, lastName=:lastName, manager_id=:manager_id, street=:street, city=:city, dob=:dob, updated_at=:updated_at, initials=:initials where id=:id]]></db:sql>
+			<db:input-parameters><![CDATA[#[%dw 2.0
+output application/java
+---
+payload]]]></db:input-parameters>
+		</db:update>
+				<ee:transform doc:name="PUT user mapping" doc:id="a90e9ec2-5eb5-4ccb-b934-5676ef7dc952">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  message: "User Successfully Updated"
+} as Object {encoding: "UTF-8", mediaType: "application/json"}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+			</when>
+			<otherwise >
+				<ee:transform doc:name="PUT user not found mapping" doc:id="55c5f1a7-0e75-46f6-a2f8-7e96240c40a6">
+						<ee:message>
+							<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"message": "User Not Found"
+}]]></ee:set-payload>
+						</ee:message>
+						<ee:variables>
+							<ee:set-variable variableName="httpStatus"><![CDATA[404]]></ee:set-variable>
+						</ee:variables>
+					</ee:transform>
+			</otherwise>
+		</choice>
+		<logger level="INFO" doc:name="End Log" doc:id="58d22486-c379-482f-88e9-ec03ada86292" message='#["PUT user ended"]'/>
+	</flow>
+	<flow name="delete-user-flow" doc:id="be43b9cb-c04d-4506-87f1-517a32a0011e" >
+		<logger level="INFO" doc:name="Start Log" doc:id="6fb510e8-2c04-43b0-84c7-710b18f2236b" message='#["DELETE user started"]' />
+		<flow-ref doc:name="get-user-by-id-flow" doc:id="836a424f-47a4-4e33-ac60-3d8109d73f36" name="get-user-by-id-flow" />
+		<choice doc:name="Choice" doc:id="45ed9bf5-af59-4dfb-b28b-befe8bfd4c69" >
+			<when expression='#[!isEmpty(payload.id)]'>
+				<db:delete doc:name="Delete User" doc:id="a7b774c4-5af3-4e24-8b08-adba93f91f21" config-ref="Database_Config" queryTimeoutUnit="MINUTES">
+			<db:sql><![CDATA[delete from users
+where id = :id]]></db:sql>
+					<db:input-parameters><![CDATA[#[{
+	id: vars.uriParam
+}]]]></db:input-parameters>
+		</db:delete>
+				<ee:transform doc:name="DELETE user mapping" doc:id="a6851ed4-cdb3-4cf2-8482-354ce4f93de3" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+""]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</when>
+			<otherwise >
+				<ee:transform doc:name="DELETE user not exist without response mapping" doc:id="7719bfe8-eb95-4a08-a341-a1bc03543d89">
+			<ee:message>
+							<ee:set-payload><![CDATA[%dw 2.0
+output application/java
+---
+""]]></ee:set-payload>
+			</ee:message>
+			<ee:variables>
+				<ee:set-variable variableName="httpStatus"><![CDATA[404]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+			</otherwise>
+		</choice>
+		<logger level="INFO" doc:name="End Log" doc:id="31c16137-e3a5-4ae1-9c16-566c60d16863" message='#["DELETE user ended"]' />
+	</flow>
+</mule>

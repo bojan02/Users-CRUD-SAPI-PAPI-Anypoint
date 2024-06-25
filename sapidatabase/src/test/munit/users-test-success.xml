@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="   http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd   http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd   http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
+	<munit:config name="users-test-success.xml"/>
+	<munit:test description="Test" doc:id="546f14bc-f424-4e95-967e-a7016a1e1091" name="get-user-by-id-success-flowTest">
+		<munit:behavior>
+			<munit-tools:mock-when doc:id="d434bd16-a16d-4f25-8dae-e504dedb931e" doc:name="Get User with Id Database Call" processor="db:select">
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute attributeName="doc:id" whereValue="cc2d8b50-c4ff-43c4-b9d8-15dd1899c588"/>
+				</munit-tools:with-attributes>
+				<munit-tools:then-return>
+					<munit-tools:payload mediaType="application/java" value="#[%dw 2.0&#10;import getUser from cmd::userRequest&#10;output application/java&#10;---&#10;[getUser(1)]]"/>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution>
+			<munit:set-event doc:id="3d582b7b-bf2b-4671-a902-b2623f9c735f" doc:name="Set ID URI Param">
+				<munit:attributes value="#[%dw 2.0&#10;import getUriParam from cmd::userRequest&#10;output application/java&#10;---&#10;getUriParam(1)]"/>
+			</munit:set-event>
+			<flow-ref doc:id="5759a834-9339-4f95-8912-f0d699c6f1fb" doc:name="get-user-by-id-flow" name="get-user-by-id-flow"/>
+		</munit:execution>
+		<munit:validation>
+			<munit-tools:verify-call doc:id="82b8816b-2f40-4ab5-a97c-b21dc538e482" doc:name="Verify call" processor="db:select" times="1">
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute attributeName="doc:id" whereValue="cc2d8b50-c4ff-43c4-b9d8-15dd1899c588"/>
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+			<munit-tools:assert-equals actual="#[payload]" doc:id="9c42d20f-9058-432a-b0d5-7af73ae281d6" doc:name="Get User Response" expected="#[%dw 2.0&#10;import getUser from targetModel::userResponse&#10;output application/java&#10;---&#10;getUser(1)]"/>
+		</munit:validation>
+	</munit:test>
+	<munit:test description="Test" doc:id="1e99a6fc-42ea-4ad1-ba1a-bff02fc87fbb" name="get-all-users-flowTest">
+		<munit:behavior>
+			<munit-tools:mock-when doc:id="fb54f291-403c-46df-a74a-c6d7b8f609ac" doc:name="Get Users Array Database Call" processor="db:select">
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute attributeName="doc:id" whereValue="cc2d8b50-c4ff-43c4-b9d8-15dd1899c588"/>
+				</munit-tools:with-attributes>
+				<munit-tools:then-return>
+					<munit-tools:payload mediaType="application/java" value="#[%dw 2.0&#10;import getUsersArray from cmd::userRequest&#10;output application/java&#10;---&#10;getUsersArray()]"/>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution>
+			<flow-ref doc:id="29dd7928-3718-433d-9bff-296d0193ea0f" doc:name="get-users-flow" name="get-users-flow"/>
+		</munit:execution>
+		<munit:validation>
+			<munit-tools:verify-call doc:id="d561f271-83aa-4a7f-97d9-d2a45b31222a" doc:name="Verify call" processor="db:select" times="1">
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute attributeName="doc:id" whereValue="cc2d8b50-c4ff-43c4-b9d8-15dd1899c588"/>
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+			<munit-tools:assert-equals actual="#[payload]" doc:id="35222500-e157-4705-be42-36ca788f8562" doc:name="Get User Array Response" expected="#[%dw 2.0&#10;import getUsersArray from targetModel::userResponse&#10;output application/java&#10;---&#10;getUsersArray()]"/>
+		</munit:validation>
+	</munit:test>
+	<munit:test description="Test" doc:id="82a16fb4-6082-4919-965c-a34af9b4d7b4" name="get-user-by-email-success-flowTest">
+		<munit:behavior>
+			<munit-tools:mock-when doc:id="d39c05d4-8212-4644-9c92-c2f3986c963f" doc:name="Get User with Id Database Call" processor="db:select">
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute attributeName="doc:id" whereValue="cc2d8b50-c4ff-43c4-b9d8-15dd1899c588"/>
+				</munit-tools:with-attributes>
+				<munit-tools:then-return>
+					<munit-tools:payload mediaType="application/java" value="#[%dw 2.0&#10;import getUser from cmd::userRequest&#10;output application/java&#10;---&#10;[getUser(1)]]"/>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution>
+			<munit:set-event doc:id="8ed74542-afb8-4c17-ae12-0ef21b42bd46" doc:name="Set Email Query Param">
+				<munit:attributes value="#[%dw 2.0&#10;import getQueryParam from cmd::userRequest&#10;output application/java&#10;---&#10;getQueryParam(&quot;kruno@net.hr&quot;)]"/>
+			</munit:set-event>
+			<flow-ref doc:id="4e1dcf58-1521-45a8-85ef-a7ce35e57f2d" doc:name="get-users-flow" name="get-users-flow"/>
+		</munit:execution>
+		<munit:validation>
+			<munit-tools:verify-call doc:id="c8bc0d42-75fb-4cfe-b512-bf945fe87558" doc:name="Verify call" processor="db:select" times="1">
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute attributeName="doc:id" whereValue="cc2d8b50-c4ff-43c4-b9d8-15dd1899c588"/>
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+			<munit-tools:assert-equals actual="#[payload]" doc:id="5deafa75-3ddd-4b2a-bcea-91c26e9cad08" doc:name="Get User Response" expected="#[%dw 2.0&#10;import getUser from targetModel::userResponse&#10;output application/java&#10;---&#10;getUser(1)]"/>
+		</munit:validation>
+	</munit:test>
+	<munit:test description="Test" doc:id="51f46348-a02f-4fc6-80cd-85cc0353b3dd" name="post-user-success-flowTest">
+		<munit:behavior>
+			<munit-tools:mock-when doc:id="357ced4d-23d4-4cb7-a442-f719092a5299" doc:name="Get Empty Select Database Call" processor="db:select">
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute attributeName="doc:id" whereValue="cc2d8b50-c4ff-43c4-b9d8-15dd1899c588"/>
+				</munit-tools:with-attributes>
+				<munit-tools:then-return>
+					<munit-tools:payload mediaType="application/java" value="#[[]]"/>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:id="738bdac9-35a2-4654-b34b-d7ba44b52a55" doc:name="Insert Database Call" processor="db:insert">
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute attributeName="doc:id" whereValue="0416ed66-fea7-4da9-82b7-7d03b52a566c"/>
+				</munit-tools:with-attributes>
+				<munit-tools:then-return>
+					<munit-tools:payload mediaType="application/java" value="#[[]]"/>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution>
+			<munit:set-event doc:id="68f00fb2-7395-4d00-8258-96aff2f1b9b4" doc:name="Set post payload">
+				<munit:payload mediaType="application/java" value="#[%dw 2.0&#10;import getUser from targetModel::userResponse&#10;output application/java&#10;---&#10;getUser()]"/>
+			</munit:set-event>
+			<flow-ref doc:id="88a876f3-58d4-4d7f-abdc-5a2cb56368eb" doc:name="post-user-flow" name="post-user-flow"/>
+		</munit:execution>
+		<munit:validation>
+			<munit-tools:verify-call doc:id="ad042044-4787-4a5b-a3aa-6f8f85675e28" doc:name="Verify call Select" processor="db:select" times="1">
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute attributeName="doc:id" whereValue="cc2d8b50-c4ff-43c4-b9d8-15dd1899c588"/>
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+			<munit-tools:verify-call doc:id="7e3863af-b142-49dd-a62c-a6248e853817" doc:name="Verify call Insert" processor="db:insert" times="1">
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute attributeName="doc:id" whereValue="0416ed66-fea7-4da9-82b7-7d03b52a566c"/>
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+			<munit-tools:assert-equals actual="#[payload]" doc:id="b8d13271-6fda-47f4-95fb-8c2396b37ad8" doc:name="Get message User Successfully Created" expected="#[%dw 2.0&#10;import getMessage from targetModel::userResponse&#10;output application/java&#10;---&#10;getMessage(&quot;User Successfully Created&quot;)]"/>
+		</munit:validation>
+	</munit:test>
+	<munit:test description="Test" doc:id="bc1eea6e-247a-4527-9991-13979389aabb" name="put-user-success-flowTest">
+		<munit:behavior>
+			<munit-tools:mock-when doc:id="55e95a5f-8d41-4edc-ab3a-f678b245c634" doc:name="Get User with Id Database Call" processor="db:select">
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute attributeName="doc:id" whereValue="cc2d8b50-c4ff-43c4-b9d8-15dd1899c588"/>
+				</munit-tools:with-attributes>
+				<munit-tools:then-return>
+					<munit-tools:payload mediaType="application/java" value="#[%dw 2.0&#10;import getUser from cmd::userRequest&#10;output application/java&#10;---&#10;[getUser(1)]]"/>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:id="dbba5536-ea08-4e57-af55-07351ef15f9f" doc:name="Update Database Call" processor="db:update">
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute attributeName="doc:id" whereValue="f81df8bd-f6ab-4382-b67d-d4f46652befd"/>
+				</munit-tools:with-attributes>
+				<munit-tools:then-return>
+					<munit-tools:payload mediaType="application/avro" value="#[[]]"/>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution>
+			<munit:set-event doc:id="bebb0e85-e401-45b0-9c7e-8a3161e596f0" doc:name="Set ID URI Param And Payload Event">
+				<munit:payload value="#[%dw 2.0&#10;import getUser from targetModel::userResponse&#10;output application/java&#10;---&#10;getUser()]"/>
+				<munit:attributes value="#[%dw 2.0&#10;import getUriParam from cmd::userRequest&#10;output application/java&#10;---&#10;getUriParam(1)]"/>
+			</munit:set-event>
+			<flow-ref doc:id="9a8d7eba-e47d-4764-b80f-e8c1d6662f13" doc:name="put-user-flow" name="put-user-flow"/>
+		</munit:execution>
+		<munit:validation>
+			<munit-tools:verify-call doc:id="0ce7b2f4-2d08-4e72-8036-5b3589f0b959" doc:name="Verify call Select" processor="db:select" times="1">
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute attributeName="doc:id" whereValue="cc2d8b50-c4ff-43c4-b9d8-15dd1899c588"/>
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+			<munit-tools:verify-call doc:id="5bfed8e5-286d-4405-9d3b-2b0ba510de19" doc:name="Verify call Update" processor="db:update" times="1">
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute attributeName="doc:id" whereValue="f81df8bd-f6ab-4382-b67d-d4f46652befd"/>
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+			<munit-tools:assert-equals actual="#[payload]" doc:id="d2210b69-b807-40ba-b47a-c44b8cb1bcdb" doc:name="Get message User Successfully Updated" expected="#[%dw 2.0&#10;import getMessage from targetModel::userResponse&#10;output application/java&#10;---&#10;getMessage(&quot;User Successfully Updated&quot;)]"/>
+		</munit:validation>
+	</munit:test>
+	<munit:test description="Test" doc:id="ccfee16b-e986-4c8a-8b36-7268e76ba411" name="delete-user-success-flowTest">
+		<munit:behavior>
+			<munit-tools:mock-when doc:id="993ec919-96af-4d50-91a7-55a6415f9fce" doc:name="Get User with Id Database Call" processor="db:select">
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute attributeName="doc:id" whereValue="cc2d8b50-c4ff-43c4-b9d8-15dd1899c588"/>
+				</munit-tools:with-attributes>
+				<munit-tools:then-return>
+					<munit-tools:payload mediaType="application/java" value="#[%dw 2.0&#10;import getUser from cmd::userRequest&#10;output application/java&#10;---&#10;[getUser(1)]]"/>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:id="b2ddaaae-1613-4ecb-b85a-152645363d35" doc:name="Mock Delete Database Call" processor="db:delete">
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute attributeName="doc:id" whereValue="a7b774c4-5af3-4e24-8b08-adba93f91f21"/>
+				</munit-tools:with-attributes>
+				<munit-tools:then-return>
+					<munit-tools:payload value="#[1]"/>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution>
+			<munit:set-event doc:id="57d35b1a-3ac1-4be1-922f-7338fcf9b1de" doc:name="Set ID URI Param Event">
+				<munit:attributes value="#[%dw 2.0&#10;import getUriParam from cmd::userRequest&#10;output application/java&#10;---&#10;getUriParam(1)]"/>
+			</munit:set-event>
+			<flow-ref doc:id="0b7c359c-be97-4986-875d-43e945cb6db0" doc:name="delete-user-flow" name="delete-user-flow"/>
+		</munit:execution>
+		<munit:validation>
+			<munit-tools:verify-call doc:id="0132fd0e-befa-4cbc-b1fe-8f12b77f141b" doc:name="Verify call Select" processor="db:select" times="1">
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute attributeName="doc:id" whereValue="cc2d8b50-c4ff-43c4-b9d8-15dd1899c588"/>
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+			<munit-tools:verify-call doc:id="a0e895c5-c8a2-4e6b-998d-024cb4c4fd8b" doc:name="Verify call Delete" processor="db:delete" times="1">
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute attributeName="doc:id" whereValue="a7b774c4-5af3-4e24-8b08-adba93f91f21"/>
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+			<munit-tools:assert-equals actual="#[payload]" doc:id="d536fa60-02ab-4d4a-8664-284ebce07d6d" doc:name="Get Empty Response" expected="#[&quot;&quot;]"/>
+		</munit:validation>
+	</munit:test>
+
+
+</mule>

@@ -57,4 +57,5 @@ type post_papi_request_payload = {|
       </types:output-event>
     </types:processor-declaration>
   </types:enrichment>
+  <types:enrichment select="#4397353f-61ae-4def-bf05-a340e9ac7495"/>
 </types:mule>
